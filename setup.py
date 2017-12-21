@@ -31,9 +31,9 @@ setup(
     version=version,
     description="""A Django OpenID Connect (OIDC) authentication backend""",
     long_description=readme + '\n\n' + history,
-    author='Marc-Antoine Gouillart',
-    author_email='marsu_pilami@msn.com',
-    url='https://github.com/marcanpilami/django-oidc',
+    author='Peter Nalyvayko',
+    author_email='brat000012001@gmail.com',
+    url='https://github.com/brat000012001/django-oidc',
     packages=[
         'djangooidc',
     ],
