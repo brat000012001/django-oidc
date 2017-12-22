@@ -2,6 +2,7 @@
 
 import logging
 from urlparse import parse_qs
+from wsgiref.util import is_hop_by_hop
 
 from django.conf import settings
 from django.contrib.auth import logout as auth_logout, authenticate, login
@@ -135,12 +136,26 @@ def logout(request, next_page=None):
     # Redirect client to the OP logout page
     try:
         request_args = None
-        if 'id_token' in request.session.keys():
-            request_args = {'id_token': IdToken(**request.session['id_token'])}
+        if 'id_token_raw' in request.session.keys():
+            logger.info('logout => found id_token_raw: %s' % request.session['id_token_raw'])
+            request_args = {'id_token_hint': request.session['id_token_raw']}
         res = client.do_end_session_request(state=request.session["state"],
                                             extra_args=extra_args, request_args=request_args)
-        resp = HttpResponse(content_type=res.headers["content-type"], status=res.status_code, content=res._content)
+
+        logger.debug('********  do_end_session_request ********** status: %s, headers: %s' % (str(res.status_code),str(res.headers))) 
+
+        # a workaround to avoid an exception if 'content-type' header is absent 
+        # (e.g. if the server is behind a reverse rpxoy)
+        if 'content-type' in res.headers:
+            content_type = res.headers['content-type']
+        else:
+            # TODO: what the default content-type should be?
+            content_type = 'text/plain' 
+        resp = HttpResponse(content_type=content_type, status=res.status_code, content=res._content)
+
+        # Check for hop-by-hop headers to prevent WSGI application errors thrown later in the pipeline
         for key, val in res.headers.items():
+            if is_hop_by_hop(key): continue
             resp[key] = val
         return resp
     finally:

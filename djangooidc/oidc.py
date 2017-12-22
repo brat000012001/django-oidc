@@ -32,6 +32,21 @@ class Client(oic.Client):
         if behaviour:
             self.behaviour = behaviour
 
+        # A sink to extract a raw id_token from a token response
+        self.events = self
+        # id_token raw
+        self._idt_raw = None
+
+    def store(self, *args, **kwargs):
+        """
+
+        :param *args: typically, the parameter at position 0 is a type of event, and the parameter at 1 is the value
+        """
+        if  args[0] == 'Response':
+            if isinstance(args[1], dict) and 'id_token' in args[1]:
+                self._idt_raw = args[1]['id_token']
+                logger.debug('events.store(%s) = %s' % (args[0], args[1]))
+
     def create_authn_request(self, session, acr_value=None, **kwargs):
         session["state"] = rndstr()
         session["nonce"] = rndstr()
@@ -116,6 +131,13 @@ class Client(oic.Client):
                 raise OIDCError("Invalid response %s." % atresp["error"])
             session['id_token'] = atresp['id_token']._dict
             session['access_token'] = atresp['access_token']
+
+            # The raw id_token is passed in 'id_token_hint' query parameter to the end point URL during logout
+            logger.debug('********  idt_raw ********* %s' % self._idt_raw)
+            if self._idt_raw is not None:
+                session['id_token_raw'] = self._idt_raw
+                self._idt_raw = None
+
             try:
                 session['refresh_token'] = atresp['refresh_token']
             except:
