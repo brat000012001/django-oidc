@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import sys
 import logging
 from urlparse import parse_qs
 from wsgiref.util import is_hop_by_hop
@@ -157,6 +158,12 @@ def logout(request, next_page=None):
         for key, val in res.headers.items():
             if is_hop_by_hop(key): continue
             resp[key] = val
+        return resp
+    except:
+        # Handle the responses from the server that cannot be parsed by oic/oauth2 client, e.g. error responses
+        # the server generates if the session has expired
+        logger.debug('************ logout failed ***************: %s' % sys.exc_info()[0]) 
+        resp = HttpResponse(content_type='text/plain', status=302)
         return resp
     finally:
         # Always remove Django session stuff - even if not logged out from OP. Don't wait for the callback as it may never come.
