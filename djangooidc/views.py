@@ -164,6 +164,7 @@ def logout(request, next_page=None):
         # the server generates if the session has expired
         logger.debug('************ logout failed ***************: %s' % sys.exc_info()[0]) 
         resp = HttpResponse(content_type='text/plain', status=302)
+        resp['Location'] = '/'
         return resp
     finally:
         # Always remove Django session stuff - even if not logged out from OP. Don't wait for the callback as it may never come.
