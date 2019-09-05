@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.auth import logout as auth_logout, authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import login as auth_login_view, logout as auth_logout_view
-from django.shortcuts import redirect, render_to_response, resolve_url
+from django.shortcuts import redirect, render, resolve_url
 from django.http import HttpResponse
 from django import forms
 from django.template import RequestContext
@@ -60,7 +60,7 @@ def openid(request, op_name=None):
                 request.session["op"] = client.provider_info["issuer"]
             except Exception, e:
                 logger.exception("could not create OOID client")
-                return render_to_response("djangooidc/error.html", {"error": e})
+                return render(request, "djangooidc/error.html", {"error": e})
     else:
         form = DynamicProvider()
 
@@ -69,13 +69,12 @@ def openid(request, op_name=None):
         try:
             return client.create_authn_request(request.session)
         except Exception, e:
-            return render_to_response("djangooidc/error.html", {"error": e})
+            return render(request, "djangooidc/error.html", {"error": e})
 
     # Otherwise just render the list+form.
-    return render_to_response(template_name,
+    return render(request, template_name,
                               {"op_list": [i for i in settings.OIDC_PROVIDERS.keys() if i], 'dynamic': dyn,
-                               'form': form, 'ilform': ilform, "next": request.session["next"]},
-                              context_instance=RequestContext(request))
+                               'form': form, 'ilform': ilform, "next": request.session["next"]})
 
 
 # Step 4: analyze the token returned by the OP
@@ -94,7 +93,7 @@ def authz_cb(request):
         else:
             raise Exception('this login is not valid in this application')
     except OIDCError as e:
-        return render_to_response("djangooidc/error.html", {"error": e, "callback": query})
+        return render(request, "djangooidc/error.html", {"error": e, "callback": query})
 
 
 def logout(request, next_page=None):
