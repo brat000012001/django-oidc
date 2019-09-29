@@ -2,7 +2,7 @@
 
 import sys
 import logging
-from urlparse import parse_qs
+from urllib.parse import parse_qs
 from wsgiref.util import is_hop_by_hop
 
 from django.conf import settings
