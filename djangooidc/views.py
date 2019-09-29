@@ -8,7 +8,7 @@ from wsgiref.util import is_hop_by_hop
 from django.conf import settings
 from django.contrib.auth import logout as auth_logout, authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.views import login as auth_login_view, logout as auth_logout_view
+from django.contrib.auth.views import LoginView as auth_login_view, LogoutView as auth_logout_view
 from django.shortcuts import redirect, render, resolve_url
 from django.http import HttpResponse
 from django import forms
