@@ -16,7 +16,7 @@ class OpenIdConnectBackend(ModelBackend):
     In all other cases, None is returned.
     """
 
-    def authenticate(self, **kwargs):
+    def authenticate(self, request, **kwargs):
         user = None
         if not kwargs or 'sub' not in kwargs.keys():
             return user
