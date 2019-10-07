@@ -74,7 +74,7 @@ class Client(oic.Client):
         logger.debug("ht_args: %s", ht_args)
 
         if isinstance(url, newstr):
-            p3_bytes = bytes(url)
+            p3_bytes = bytes(url,'utf-8')
             url = p3_bytes.decode('utf-8', 'surrogateescape')
         resp = HttpResponseRedirect(url)
         if ht_args:

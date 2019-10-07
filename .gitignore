@@ -56,3 +56,6 @@ docs/_build/
 
 # venv
 venv/
+
+# Visual Studio Code
+.vscode/
